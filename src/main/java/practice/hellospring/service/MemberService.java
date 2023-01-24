@@ -1,15 +1,18 @@
 package practice.hellospring.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import practice.hellospring.domain.Member;
 import practice.hellospring.repository.MemberRepository;
 import practice.hellospring.repository.MemoryMemberRepository;
 
 import java.util.List;
 import java.util.Optional;
-
+@Service
 public class MemberService {
     private final MemberRepository memberRepository;
 
+    @Autowired
     public MemberService(MemberRepository memberRepository){
         this.memberRepository = memberRepository;
     }
