@@ -9,6 +9,7 @@ import practice.hellospring.repository.MemberRepository;
 
 @Configuration
 public class SpringConfig {
+/*
 
     private final MemberRepository memberRepository;
 
@@ -16,6 +17,7 @@ public class SpringConfig {
     public SpringConfig(@Qualifier("memoryMemberRepository") MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
+*/
 
     /*
 
