@@ -19,18 +19,35 @@ import practice.hellospring.order.OrderServiceImpl;
 @Configuration
 public class AppConfig {
 
+    // @Bean memberService -> new MemberServiceImpl() -> memberRepository() -> new MemoryMemberRepository()
+    // @Bean orderService -> ~~ -> new MemoryMemberRepository()
+
+    //호출 순서를 따라가보면 찍히는 로그
+    //call AppConfig.memberService
+    //call AppConfig.memberRepository
+    //call AppConfig.memberRepository
+    //call AppConfig.orderService
+    //call AppConfig.memberRepository
+
+    //실제로 찍힌 로그
+    //call AppConfig.memberService
+    //call AppConfig.memberRepository
+    //call AppConfig.orderService
     @Bean
     public MemberService memberService() {
+        System.out.println("call AppConfig.memberService");
         return new MemberServiceImpl(memberRepository());
     }
 
     @Bean
     public MemberRepository memberRepository() {
+        System.out.println("call AppConfig.memberRepository");
         return new MemoryMemberRepository();
     }
 
     @Bean
     public OrderService orderService() {
+        System.out.println("call AppConfig.orderService");
         return new OrderServiceImpl(memberRepository(), discountPolicy());
     }
 
