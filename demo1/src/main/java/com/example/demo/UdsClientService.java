@@ -33,11 +33,11 @@ public class UdsClientService {
         }
 
         // 서버 소켓 파일이 유효한 소켓인지 확인
-        if (!serverSockFile.isFile()) {
-            System.err.println(
-                "Error: " + SERVER_SOCK_FILE + " is not a valid UNIX domain socket.");
-            return null;
-        }
+//        if (!serverSockFile.isFile()) {
+//            System.err.println(
+//                "Error: " + SERVER_SOCK_FILE + " is not a valid UNIX domain socket.");
+//            return null;
+//        }
 
         try (AFUNIXDatagramSocket socket = AFUNIXDatagramSocket.newInstance()) {
             // 클라이언트 소켓 바인딩
