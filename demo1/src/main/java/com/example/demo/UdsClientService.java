@@ -25,6 +25,8 @@ public class UdsClientService {
         }
 
         // 서버 소켓 파일 존재 확인
+        String absolutePath = serverSockFile.getAbsolutePath();
+        System.out.println(absolutePath);
         if (!serverSockFile.exists()) {
             System.err.println("Error: Server socket file does not exist: " + SERVER_SOCK_FILE);
             return null;
