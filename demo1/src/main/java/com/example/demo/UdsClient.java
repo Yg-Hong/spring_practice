@@ -81,11 +81,11 @@ public class UdsClient {
         out.write(message.getBytes());
         out.flush();
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            System.out.println("error");
-        }
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            System.out.println("error");
+//        }
 
         byte[] buffer = new byte[BUFFER_SIZE];
         int numRead = in.read(buffer);
@@ -96,57 +96,9 @@ public class UdsClient {
         }
     }
 
-    public String sendPacket(String message, int timeoutSec) throws IOException {
-
-        // 송신
-        out.write(message.getBytes(StandardCharsets.UTF_8));
-        out.flush();
-
-        // 수신
-        BufferedReader reader = new BufferedReader(
-            new InputStreamReader(in, StandardCharsets.UTF_8));
-        String response = reader.readLine();
-
-        return response != null ? response : "No response";
-    }
-
-
     private String[] parsePacket(String result) {
         return result.split(":");
     }
-
-//    public String sendPacket(String message, int timeoutSec) {
-//        if (!serverSockFile.exists()) {
-//            return null; // 리턴 조건: 서버 소켓 파일이 없으면 요청을 보낼 수 없음
-//        }
-//
-//        try (AFUNIXSocket socket = AFUNIXSocket.newInstance()) {
-//            SocketAddress serverAddress = AFUNIXSocketAddress.of(serverSockFile);
-//            socket.connect(serverAddress);
-//
-//            // 송신
-//            OutputStream out = socket.getOutputStream();
-//            out.write(message.getBytes(StandardCharsets.UTF_8));
-//            out.flush();
-//
-//            // 수신
-//            InputStream inputStream = socket.getInputStream();
-//            BufferedReader reader = new BufferedReader(
-//                new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-//            String response = reader.readLine();
-//
-//            System.out.printf("response : %s\n", response);
-//
-//            return response != null ? response : "No response";
-//        } catch (SocketException e) {
-//            e.printStackTrace();
-//            return null;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return "echo";
-//    }
 
     private SocketAddress getSocketAddress(String socketName) throws IOException {
         if (socketName.startsWith("file:")) {
