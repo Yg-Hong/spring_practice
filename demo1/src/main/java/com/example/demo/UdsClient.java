@@ -78,6 +78,12 @@ public class UdsClient {
         out.write(message.getBytes());
         out.flush();
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            System.out.println("error");
+        }
+
         byte[] buffer = new byte[BUFFER_SIZE];
         int numRead = in.read(buffer);
         if (numRead > 0) {
