@@ -71,19 +71,12 @@ public class UdsClient {
 
     public String[] sendMessage(String message) throws IOException {
         if (sock == null || !sock.isConnected()) {
-            log.info("UDS NOT CONNECTED!!!");
+            log.info("UDS NOT CONNECTED, reconnecting...");
             reconnect();
-            throw new IOException("UDS Not Connected");
         }
         log.info("Now writing string({}) to the server...", message);
         out.write(message.getBytes());
         out.flush();
-
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            System.out.println("error");
-//        }
 
         byte[] buffer = new byte[BUFFER_SIZE];
         int numRead = in.read(buffer);
