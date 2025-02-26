@@ -16,7 +16,7 @@ public class UdsController {
 //    private final UdsDatagramClient udsClientService;
 
     @PostMapping("/send")
-    public String[] sendPacke(@RequestParam String message) throws IOException {
+    public String[] sendPacket(@RequestParam String message) throws IOException {
         return udsClientService.sendMessage(message);
     }
 
@@ -25,4 +25,8 @@ public class UdsController {
         return udsClientService.sendMessage("12:0:0");
     }
 
+    @PostMapping("/showDaemon")
+    public String[] showDaemon() throws IOException {
+        return udsClientService.sendMessage("161:0:0");
+    }
 }
