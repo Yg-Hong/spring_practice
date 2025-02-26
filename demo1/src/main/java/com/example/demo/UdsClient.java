@@ -2,6 +2,7 @@ package com.example.demo;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -13,7 +14,6 @@ import org.newsclub.net.unix.AFUNIXSocketAddress;
 import org.springframework.stereotype.Component;
 
 @Component
-//@RequiredArgsConstructor
 public class UdsClient {
 
     private final File sendSockFile;
@@ -44,8 +44,9 @@ public class UdsClient {
             SocketAddress recvEndpoint = getSocketAddress("/tmp/.webc_server");
             AFUNIXSocketAddress recvAddress = AFUNIXSocketAddress.of(recvEndpoint);
 
-//            byte[] sendData = message.getBytes(StandardCharsets.UTF_8);
-//            socket.send(new java.net.DatagramPacket(sendData, sendData.length, recvAddress));
+            byte[] sendData = message.getBytes(StandardCharsets.UTF_8);
+            socket.send(new DatagramPacket(sendData, sendData.length, recvAddress));
+
         } catch (SocketException e) {
             e.printStackTrace();
             return null;
