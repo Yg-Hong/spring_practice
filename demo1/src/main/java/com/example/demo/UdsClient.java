@@ -2,16 +2,13 @@ package com.example.demo;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.newsclub.net.unix.AFSocketAddress;
 import org.newsclub.net.unix.AFUNIXSocket;
@@ -75,6 +72,7 @@ public class UdsClient {
     public String[] sendMessage(String message) throws IOException {
         if (sock == null || !sock.isConnected()) {
             log.info("UDS NOT CONNECTED!!!");
+            reconnect();
             throw new IOException("UDS Not Connected");
         }
         log.info("Now writing string({}) to the server...", message);
