@@ -1,13 +1,10 @@
 package com.example.demo;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.StandardProtocolFamily;
 import java.net.UnixDomainSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.nio.file.Files;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,49 +13,36 @@ import org.springframework.stereotype.Component;
 public class UdsClient {
 
     private final UdsClientConfig config;
+    private final File sendSockFile;
+    private final File recvSockFile;
 
-    public String sendPacket(String sendMsg) {
-        String sessionId = "0";
-        Path clientSockPath = Paths.get(config.getClientSocketPath());
-        Path serverSockPath = Paths.get(config.getServerSocketPath());
+    public UdsClient(String sessionId) {
+        this.sendSockFile = new File("/tmp/.webc_c_" + (sessionId.isEmpty() ? "0" : sessionId));
+        this.recvSockFile = new File("/tmp/.webc_server");
+    }
 
-        // 기존 클라이언트 소켓 파일이 있으면 삭제
-        try {
-            if (Files.exists(clientSockPath)) {
-                Files.delete(clientSockPath);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete existing client socket file", e);
+    public String sendPacket(String sendMsg, int timeoutSec) {
+        if (!recvSockFile.exists()) {
+            return null; // 리턴 조건: 서버 소켓 파일이 없으면 요청을 보낼 수 없음
         }
 
-        // DatagramChannel을 이용한 UDS Datagram 소켓 생성
-        try (DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.UNIX)) {
-            // 클라이언트 UDS 주소 바인딩
-            UnixDomainSocketAddress clientAddr = UnixDomainSocketAddress.of(clientSockPath);
-            channel.bind(clientAddr);
-
-            // 서버 UDS 주소
-            UnixDomainSocketAddress serverAddr = UnixDomainSocketAddress.of(serverSockPath);
-
-            // 메시지 전송
-            ByteBuffer buffer = ByteBuffer.allocate(config.getBufferSize());
-            buffer.put(sendMsg.getBytes());
-            buffer.flip();
-
-            channel.send(buffer, serverAddr);
-
-            // 응답 수신
-            buffer.clear();
-            channel.receive(buffer);
-            buffer.flip();
-
-            byte[] responseBytes = new byte[buffer.remaining()];
-            buffer.get(responseBytes);
-            return new String(responseBytes);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to communicate via UDS", e);
+        Path socketPath = Path.of("/tmp/.webc_server");
+        // 기존 소켓 파일이 존재하면 삭제
+        if (sendSockFile.exists()) {
+            sendSockFile.delete();
         }
+
+        try (ServerSocketChannel serverSocket = ServerSocketChannel.open()) {
+            // 유닉스 도메인 소켓 주소 생성
+            UnixDomainSocketAddress address = UnixDomainSocketAddress.of(socketPath);
+            serverSocket.bind(address);
+            // 주소 정보 출력
+            System.out.println("Unix Domain Socket Address: " + address.getPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return "echo";
     }
 
 }
