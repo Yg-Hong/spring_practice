@@ -1,7 +1,11 @@
 package com.example.demo;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -9,44 +13,47 @@ import java.net.SocketException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import org.newsclub.net.unix.AFSocketAddress;
-import org.newsclub.net.unix.AFUNIXDatagramSocket;
+import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UdsClient {
 
-    private final File sendSockFile;
-    private final File recvSockFile;
+    private final File clientSockFile;
+    private final File serverSockFile;
 
     public UdsClient() {
-        this.sendSockFile = new File("/tmp/.webc_c_0");
-        this.recvSockFile = new File("/tmp/.webc_server");
+        this.clientSockFile = new File("/tmp/.webc_c_0");
+        this.serverSockFile = new File("/tmp/.webc_server");
     }
 
     public String sendPacket(String message, int timeoutSec) {
-        if (!recvSockFile.exists()) {
+        if (!serverSockFile.exists()) {
             return null; // 리턴 조건: 서버 소켓 파일이 없으면 요청을 보낼 수 없음
         }
 
         // 기존 소켓 파일이 존재하면 삭제
-        if (sendSockFile.exists()) {
-            sendSockFile.delete();
+        if (clientSockFile.exists()) {
+            clientSockFile.delete();
         }
 
-        try (AFUNIXDatagramSocket socket = AFUNIXDatagramSocket.newInstance()) {
-            socket.setSoTimeout(timeoutSec * 1000);
+        try (AFUNIXSocket socket = AFUNIXSocket.newInstance()) {
+            SocketAddress serverAddress = AFUNIXSocketAddress.of(serverSockFile);
+            socket.connect(serverAddress);
 
-            SocketAddress sendEndpoint = getSocketAddress("/tmp/.webc_c_0");
-            AFUNIXSocketAddress sendAddress = AFUNIXSocketAddress.of(sendEndpoint);
-            socket.bind(sendAddress);
+            // 송신
+            OutputStream out = socket.getOutputStream();
+            out.write(message.getBytes(StandardCharsets.UTF_8));
+            out.flush();
 
-            SocketAddress recvEndpoint = getSocketAddress("/tmp/.webc_server");
-            AFUNIXSocketAddress recvAddress = AFUNIXSocketAddress.of(recvEndpoint);
+            // 수신
+            InputStream inputStream = socket.getInputStream();
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            String response = reader.readLine();
 
-            byte[] sendData = message.getBytes(StandardCharsets.UTF_8);
-            socket.send(new DatagramPacket(sendData, sendData.length, recvAddress));
-
+            return response != null ? response : "No response";
         } catch (SocketException e) {
             e.printStackTrace();
             return null;
