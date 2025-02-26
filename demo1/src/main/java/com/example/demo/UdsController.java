@@ -15,12 +15,12 @@ public class UdsController {
 
     @PostMapping("/send")
     public String sendPacke(@RequestParam String message) {
-        return udsClientService.sendPacket(message);
+        return udsClientService.sendPacket(message, 5);
     }
 
     @PostMapping("/ping")
     public String ping() {
-        return udsClientService.sendPacket("12:0:0");
+        return udsClientService.sendPacket("12:0:0", 5);
     }
 
 }
