@@ -6,9 +6,9 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import org.newsclub.net.unix.AFSocketAddress;
 import org.newsclub.net.unix.AFUNIXDatagramSocket;
-import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +41,11 @@ public class UdsClient {
             AFUNIXSocketAddress sendAddress = AFUNIXSocketAddress.of(sendEndpoint);
             socket.bind(sendAddress);
 
+            SocketAddress recvEndpoint = getSocketAddress("/tmp/.webc_server");
+            AFUNIXSocketAddress recvAddress = AFUNIXSocketAddress.of(recvEndpoint);
 
+//            byte[] sendData = message.getBytes(StandardCharsets.UTF_8);
+//            socket.send(new java.net.DatagramPacket(sendData, sendData.length, recvAddress));
         } catch (SocketException e) {
             e.printStackTrace();
             return null;
