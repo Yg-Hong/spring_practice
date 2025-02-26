@@ -29,4 +29,15 @@ public class UdsController {
     public String[] showDaemon() throws IOException {
         return udsClientService.sendMessage("161:0:0");
     }
+
+
+    @PostMapping("/ping2")
+    public String ping2() throws IOException {
+        return udsClientService.sendPacket("12:0:0", 1);
+    }
+
+    @PostMapping("/showDaemon2")
+    public String StringshowDaemon2() throws IOException {
+        return udsClientService.sendPacket("161:0:0", 5);
+    }
 }

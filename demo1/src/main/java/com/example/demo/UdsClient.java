@@ -2,13 +2,16 @@ package com.example.demo;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.newsclub.net.unix.AFSocketAddress;
 import org.newsclub.net.unix.AFUNIXSocket;
@@ -92,6 +95,21 @@ public class UdsClient {
             return null;
         }
     }
+
+    public String sendPacket(String message, int timeoutSec) throws IOException {
+
+        // 송신
+        out.write(message.getBytes(StandardCharsets.UTF_8));
+        out.flush();
+
+        // 수신
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(in, StandardCharsets.UTF_8));
+        String response = reader.readLine();
+
+        return response != null ? response : "No response";
+    }
+
 
     private String[] parsePacket(String result) {
         return result.split(":");
