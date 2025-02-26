@@ -33,7 +33,7 @@ public class UdsDatagramClient {
             socket.bind(AFUNIXSocketAddress.of(sendSockFile));
 
             byte[] sendBytes = sendMsg.getBytes();
-            SocketAddress serverAddress = AFUNIXSocketAddress.of(recvSockFile);
+            AFUNIXSocketAddress serverAddress = AFUNIXSocketAddress.of(recvSockFile);
 
             // DatagramPacket을 생성하고 전송
             DatagramPacket packet = new DatagramPacket(sendBytes, sendBytes.length, serverAddress);
