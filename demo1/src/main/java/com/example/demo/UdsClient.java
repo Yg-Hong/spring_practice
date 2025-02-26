@@ -87,9 +87,11 @@ public class UdsClient {
 
         if (numRead > 0) {
             log.info("Received response: {}", new String(buffer, 0, numRead));
+            log.info("====================================");
             return parsePacket(new String(buffer, 0, numRead));
         } else {
             log.warn("No response received from server.");
+            log.info("------------------------------------");
             return null;
         }
 
