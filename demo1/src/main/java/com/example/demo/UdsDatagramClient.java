@@ -29,13 +29,12 @@ public class UdsDatagramClient {
             sendSockFile.delete();
         }
 
-        try (AFUNIXDatagramSocket socket = AFUNIXDatagramSocket.newInstance(
-            AFSocketType.SOCK_DGRAM)) {
+        try (AFUNIXDatagramSocket socket = AFUNIXDatagramSocket.newInstance(AFSocketType.SOCK_DGRAM)) {
             socket.setSoTimeout(timeoutSec * 1000);
             socket.bind(AFUNIXSocketAddress.of(sendSockFile));
 
             byte[] sendBytes = sendMsg.getBytes();
-            AFUNIXSocketAddress serverAddress = AFUNIXSocketAddress.of(recvSockFile);
+            AFSocketAddress serverAddress = AFUNIXSocketAddress.of(recvSockFile);
 
             // DatagramPacket을 생성하고 전송
             DatagramPacket packet = new DatagramPacket(sendBytes, sendBytes.length, serverAddress);
