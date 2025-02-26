@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
 import org.newsclub.net.unix.AFSocketAddress;
@@ -62,15 +63,20 @@ public class UdsClient {
         if (this.isValid()) {
             return;
         }
+        // 이전 소켓 및 스트림을 닫고 새로운 연결을 설정
+        if (sock != null && !sock.isClosed()) {
+            sock.close();
+        }
 
         SocketAddress endpoint = getSocketAddress(SOCKET_PATH);
         sock = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(endpoint));
+
         out = sock.getOutputStream();
         in = sock.getInputStream();
     }
 
     public String[] sendMessage(String message) throws IOException {
-        if (sock == null || !sock.isConnected()) {
+        if (sock == null || !sock.isConnected() || sock.isClosed()) {
             log.info("UDS NOT CONNECTED, reconnecting...");
             reconnect();
         }
@@ -78,18 +84,26 @@ public class UdsClient {
         log.info("Now writing string({}) to the server...", message);
         out.write(message.getBytes());
         out.flush();
-
         log.info("Message sent to server: {}", message);
 
         byte[] buffer = new byte[BUFFER_SIZE];
-        int numRead = in.read(buffer);
-        log.info("Bytes read from server: {}", numRead);
+
+        int numRead = -1;
+        try {
+            // 타임아웃 설정 (3초)
+            sock.setSoTimeout(3000);
+            numRead = in.read(buffer);
+        } catch (SocketTimeoutException e) {
+            log.warn("Timeout occurred while waiting for response from server.");
+            cleanUp();
+            return null; // 타임아웃 발생 시 null 반환
+        }
 
         if (numRead > 0) {
             log.info("Received response: {}", new String(buffer, 0, numRead));
             log.info("====================================");
             String result = new String(buffer, 0, numRead);
-            cleanUp();
+
             return parsePacket(result);
         } else {
             log.warn("No response received from server.");
@@ -131,16 +145,17 @@ public class UdsClient {
 
     private void cleanUp() {
         try {
-            if (in != null) {
-                in.close();
-                log.info("InputStream closed.");
-            }
             if (out != null) {
                 out.close();
-                log.info("OutputStream closed.");
+            }
+            if (in != null) {
+                in.close();
+            }
+            if (sock != null && !sock.isClosed()) {
+                sock.close();
             }
         } catch (IOException e) {
-            log.error("Error while closing streams", e);
+            log.error("Error cleaning up resources: {}", e.getMessage());
         }
     }
 }
