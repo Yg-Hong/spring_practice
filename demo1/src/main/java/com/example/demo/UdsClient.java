@@ -93,6 +93,8 @@ public class UdsClient {
             log.warn("No response received from server.");
             log.info("------------------------------------");
             return null;
+        } finally {
+            cleanUp();
         }
 
     }
@@ -127,4 +129,18 @@ public class UdsClient {
         }
     }
 
+    private void cleanUp() {
+        try {
+            if (in != null) {
+                in.close();
+                log.info("InputStream closed.");
+            }
+            if (out != null) {
+                out.close();
+                log.info("OutputStream closed.");
+            }
+        } catch (IOException e) {
+            log.error("Error while closing streams", e);
+        }
+    }
 }
