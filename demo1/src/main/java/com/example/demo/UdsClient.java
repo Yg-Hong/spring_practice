@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
 import org.newsclub.net.unix.AFSocketAddress;
@@ -63,14 +62,9 @@ public class UdsClient {
         if (this.isValid()) {
             return;
         }
-        // 이전 소켓 및 스트림을 닫고 새로운 연결을 설정
-        if (sock != null && !sock.isClosed()) {
-            sock.close();
-        }
 
         SocketAddress endpoint = getSocketAddress(SOCKET_PATH);
         sock = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(endpoint));
-
         out = sock.getOutputStream();
         in = sock.getInputStream();
     }
@@ -81,36 +75,19 @@ public class UdsClient {
             reconnect();
         }
 
-        log.info("Now writing string({}) to the server...", message);
         out.write(message.getBytes());
         out.flush();
-        log.info("Message sent to server: {}", message);
 
         byte[] buffer = new byte[BUFFER_SIZE];
+        int numRead = in.read(buffer);
 
-        int numRead = -1;
-        try {
-            // 타임아웃 설정 (3초)
-            sock.setSoTimeout(3000);
-            numRead = in.read(buffer);
-        } catch (SocketTimeoutException e) {
-            log.warn("Timeout occurred while waiting for response from server.");
-            cleanUp();
-            return null; // 타임아웃 발생 시 null 반환
-        }
-
+        String result = null;
         if (numRead > 0) {
-            log.info("Received response: {}", new String(buffer, 0, numRead));
-            log.info("====================================");
-            String result = new String(buffer, 0, numRead);
-
-            return parsePacket(result);
-        } else {
-            log.warn("No response received from server.");
-            log.info("------------------------------------");
-            cleanUp();
-            return null;
+            result = new String(buffer, 0, numRead);
         }
+        cleanUp();
+
+        return result == null ? new String[0] : parsePacket(result);
     }
 
     private String[] parsePacket(String result) {
@@ -145,17 +122,16 @@ public class UdsClient {
 
     private void cleanUp() {
         try {
-            if (out != null) {
-                out.close();
-            }
             if (in != null) {
                 in.close();
+                log.info("InputStream closed.");
             }
-            if (sock != null && !sock.isClosed()) {
-                sock.close();
+            if (out != null) {
+                out.close();
+                log.info("OutputStream closed.");
             }
         } catch (IOException e) {
-            log.error("Error cleaning up resources: {}", e.getMessage());
+            log.error("Error while closing streams", e);
         }
     }
 }
