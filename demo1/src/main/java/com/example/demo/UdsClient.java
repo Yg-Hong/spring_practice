@@ -74,17 +74,25 @@ public class UdsClient {
             log.info("UDS NOT CONNECTED, reconnecting...");
             reconnect();
         }
+
         log.info("Now writing string({}) to the server...", message);
         out.write(message.getBytes());
         out.flush();
 
+        log.info("Message sent to server: {}", message);
+
         byte[] buffer = new byte[BUFFER_SIZE];
         int numRead = in.read(buffer);
+        log.info("Bytes read from server: {}", numRead);
+
         if (numRead > 0) {
+            log.info("Received response: {}", new String(buffer, 0, numRead));
             return parsePacket(new String(buffer, 0, numRead));
         } else {
+            log.warn("No response received from server.");
             return null;
         }
+
     }
 
     private String[] parsePacket(String result) {
