@@ -21,11 +21,11 @@ public class UdsController {
 
     @PostMapping("/ping")
     public String[] ping() throws IOException {
-        return udsClientService.sendMessage("12:0:0");
+        return udsClientService.sendMessage("12:0:0\n");
     }
 
     @PostMapping("/showDaemon")
     public String[] showDaemon() throws IOException {
-        return udsClientService.sendMessage("161:0:0");
+        return udsClientService.sendMessage("161:0:0\n");
     }
 }
