@@ -14,14 +14,13 @@ public class UdsController {
     private final UdsClient udsClientService;
 
     @PostMapping("/send")
-    public String sendPacke(@RequestParam String message,
-        @RequestParam(defaultValue = "5") int timeout) {
-        return udsClientService.sendPacket(message, timeout);
+    public String sendPacke(@RequestParam String message) {
+        return udsClientService.sendPacket(message);
     }
 
     @PostMapping("/ping")
     public String ping() {
-        return udsClientService.sendPacket("12:0:0", 5);
+        return udsClientService.sendPacket("12:0:0");
     }
 
 }
