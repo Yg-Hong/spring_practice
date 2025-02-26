@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UdsController {
 
-    //    private final UdsClient udsClientService;
-    private final UdsDatagramClient udsClientService;
+    private final UdsClient udsClientService;
+//    private final UdsDatagramClient udsClientService;
 
     @PostMapping("/send")
     public String sendPacke(@RequestParam String message) {
