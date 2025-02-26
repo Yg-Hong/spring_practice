@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import org.newsclub.net.unix.AFSocketAddress;
+import org.newsclub.net.unix.AFSocketType;
 import org.newsclub.net.unix.AFUNIXDatagramSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,8 @@ public class UdsDatagramClient {
             sendSockFile.delete();
         }
 
-        try (AFUNIXDatagramSocket socket = AFUNIXDatagramSocket.newInstance()) {
+        try (AFUNIXDatagramSocket socket = AFUNIXDatagramSocket.newInstance(
+            AFSocketType.SOCK_DGRAM)) {
             socket.setSoTimeout(timeoutSec * 1000);
             socket.bind(AFUNIXSocketAddress.of(sendSockFile));
 
