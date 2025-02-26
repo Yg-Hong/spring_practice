@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: demo1
+  server:
+    port: 8000
+
+uds:
+  client:
+    socket:
+      path: /tmp/.webc_client
+  server:
+    socket:
+      path: /tmp/.webc_server
+  socket:
+    buffer:
+      size: 1024

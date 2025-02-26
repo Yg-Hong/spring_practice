@@ -8,9 +8,11 @@ import java.nio.channels.DatagramChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UdsClient {
 
     private final UdsClientConfig config;
