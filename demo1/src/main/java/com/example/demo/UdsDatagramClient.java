@@ -34,7 +34,10 @@ public class UdsDatagramClient {
 
             byte[] sendBytes = sendMsg.getBytes();
             SocketAddress serverAddress = AFUNIXSocketAddress.of(recvSockFile);
-            socket.send(new DatagramPacket(sendBytes, sendBytes.length, serverAddress));
+
+            // DatagramPacket을 생성하고 전송
+            DatagramPacket packet = new DatagramPacket(sendBytes, sendBytes.length, serverAddress);
+            socket.send(packet);
 
             byte[] buffer = new byte[BUFFER_SIZE];
             DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
