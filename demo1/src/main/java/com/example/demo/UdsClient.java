@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -52,6 +51,8 @@ public class UdsClient {
             BufferedReader reader = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             String response = reader.readLine();
+
+            System.out.printf("response : %s\n", response);
 
             return response != null ? response : "No response";
         } catch (SocketException e) {
