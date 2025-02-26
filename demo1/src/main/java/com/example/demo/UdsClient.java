@@ -69,7 +69,7 @@ public class UdsClient {
         in = sock.getInputStream();
     }
 
-    public String sendMessage(String message) throws IOException {
+    public String[] sendMessage(String message) throws IOException {
         if (sock == null || !sock.isConnected()) {
             log.info("UDS NOT CONNECTED!!!");
             throw new IOException("UDS Not Connected");
@@ -81,10 +81,14 @@ public class UdsClient {
         byte[] buffer = new byte[BUFFER_SIZE];
         int numRead = in.read(buffer);
         if (numRead > 0) {
-            return new String(buffer, 0, numRead);
+            return parsePacket(new String(buffer, 0, numRead));
         } else {
             return null;
         }
+    }
+
+    private String[] parsePacket(String result) {
+        return result.split(":");
     }
 
 //    public String sendPacket(String message, int timeoutSec) {

@@ -16,12 +16,12 @@ public class UdsController {
 //    private final UdsDatagramClient udsClientService;
 
     @PostMapping("/send")
-    public String sendPacke(@RequestParam String message) throws IOException {
+    public String[] sendPacke(@RequestParam String message) throws IOException {
         return udsClientService.sendMessage(message);
     }
 
     @PostMapping("/ping")
-    public String ping() throws IOException {
+    public String[] ping() throws IOException {
         return udsClientService.sendMessage("12:0:0");
     }
 
