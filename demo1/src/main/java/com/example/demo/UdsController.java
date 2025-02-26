@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,13 +16,13 @@ public class UdsController {
 //    private final UdsDatagramClient udsClientService;
 
     @PostMapping("/send")
-    public String sendPacke(@RequestParam String message) {
-        return udsClientService.sendPacket(message, 5);
+    public String sendPacke(@RequestParam String message) throws IOException {
+        return udsClientService.sendMessage(message);
     }
 
     @PostMapping("/ping")
-    public String ping() {
-        return udsClientService.sendPacket("12:0:0", 5);
+    public String ping() throws IOException {
+        return udsClientService.sendMessage("12:0:0");
     }
 
 }
