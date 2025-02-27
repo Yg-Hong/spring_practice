@@ -75,10 +75,11 @@ public class UdsClient {
     }
 
     public String[] sendMessage(String message) throws IOException {
-        if (!isValid()) {
-            log.info("UDS NOT CONNECTED, reconnecting...");
-            connect();
-        }
+//        if (!isValid()) {
+//            log.info("UDS NOT CONNECTED, reconnecting...");
+//            connect();
+//        }
+        connect();
 
         log.info("Sending message : {}", message);
         clearInputStream();
