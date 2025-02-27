@@ -81,12 +81,13 @@ public class UdsClient {
         }
 
         log.info("Sending message : {}", message);
-        out.flush();
+        clearInputStream();
         out.write(message.getBytes(StandardCharsets.UTF_8), 0, message.length());
         out.flush();
 
         byte[] buffer = new byte[BUFFER_SIZE];
         int numRead = in.read(buffer);
+        in.reset();
 
         if (numRead <= 0) {
             log.warn("No data received from UDS");
@@ -97,6 +98,17 @@ public class UdsClient {
         log.debug("Received response: {}", response);
 
         return parsePacket(response);
+    }
+
+    private void clearInputStream() throws IOException {
+        int availableBytes = in.available();
+        if (availableBytes > 0) {
+            log.warn("Clearing stale data from input stream ({} bytes)", availableBytes);
+            byte[] buffer = new byte[availableBytes];
+            while (in.read(buffer) != -1) {
+                // 남은 데이터 읽어서 버림
+            }
+        }
     }
 
     private String[] parsePacket(String result) {
