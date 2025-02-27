@@ -96,9 +96,6 @@ public class UdsClient {
         log.debug("Received response: {}", response);
 
         return parsePacket(response);
-        cleanUp();
-
-        return result == null ? new String[0] : parsePacket(result);
     }
 
     private String[] parsePacket(String result) {
