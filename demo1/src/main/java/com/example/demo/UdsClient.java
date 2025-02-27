@@ -1,7 +1,6 @@
 package com.example.demo;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -11,7 +10,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.newsclub.net.unix.AFSocketAddress;
@@ -35,28 +33,17 @@ public class UdsClient {
     private InputStream in;
 
     @PostConstruct
-    public void init() {
-        try {
-            connect();
-            log.info("UDS Connected Completely to {}", SOCKET_PATH);
-        } catch (IOException e) {
-            log.error("Failed to connect to UDS: {}", SOCKET_PATH, e);
-        }
-    }
-
-    @PreDestroy
-    public void cleanup() {
-        disconnect();
-    }
-
     public void connect() throws IOException {
         if (isValid()) {
             return;
         }
+        log.info("Connecting to UDS: {}", SOCKET_PATH);
 
         socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(getSocketAddress(SOCKET_PATH)));
         out = new BufferedOutputStream(socket.getOutputStream());
         in = new BufferedInputStream(socket.getInputStream());
+
+        log.info("UDS Connected Completely to {}", SOCKET_PATH);
     }
 
     public synchronized void disconnect() {
@@ -74,42 +61,36 @@ public class UdsClient {
         return socket != null && socket.isConnected() && !socket.isClosed();
     }
 
-    public String[] sendMessage(String message) throws IOException {
-        // TODO
-//        if (!isValid()) {
-//            log.info("UDS NOT CONNECTED, reconnecting...");
-//            connect();
-//        }
-        connect();
+    public void reconnect() throws IOException {
+        if (this.isValid()) {
+            return;
+        }
 
-        log.info("Sending message : {}", message);
-        clearInputStream();
-        out.write(message.getBytes(StandardCharsets.UTF_8), 0, message.length());
+        SocketAddress endpoint = getSocketAddress(SOCKET_PATH);
+        socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(endpoint));
+        out = socket.getOutputStream();
+        in = socket.getInputStream();
+    }
+
+    public String[] sendMessage(String message) throws IOException {
+        if (socket == null || !socket.isConnected() || socket.isClosed()) {
+            log.info("UDS NOT CONNECTED, reconnecting...");
+            reconnect();
+        }
+
+        out.write(message.getBytes());
         out.flush();
 
         byte[] buffer = new byte[BUFFER_SIZE];
         int numRead = in.read(buffer);
 
-        if (numRead <= 0) {
-            log.warn("No data received from UDS");
-            return new String[0];
+        String result = null;
+        if (numRead > 0) {
+            result = new String(buffer, 0, numRead);
         }
+        cleanUp();
 
-        String response = new String(buffer, 0, numRead, StandardCharsets.UTF_8);
-        log.debug("Received response: {}", response);
-
-        return parsePacket(response);
-    }
-
-    private void clearInputStream() throws IOException {
-        int availableBytes = in.available();
-        if (availableBytes > 0) {
-            log.warn("Clearing stale data from input stream ({} bytes)", availableBytes);
-            byte[] buffer = new byte[availableBytes];
-            while (in.read(buffer) != -1) {
-                // 남은 데이터 읽어서 버림
-            }
-        }
+        return result == null ? new String[0] : parsePacket(result);
     }
 
     private String[] parsePacket(String result) {
@@ -139,6 +120,19 @@ public class UdsClient {
         } else {
             // assume unix socket file name
             return AFUNIXSocketAddress.of(new File(socketName));
+        }
+    }
+
+    private void cleanUp() {
+        try {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        } catch (IOException e) {
+            log.error("Error while closing streams", e);
         }
     }
 }
