@@ -32,9 +32,41 @@ public class UdsClient {
 
     @PostConstruct
     public void connect() throws IOException {
+        if (isValid()) {
+            return;
+        }
+
+        File socketFile = new File(SOCKET_PATH);
+
+        // 소켓 파일이 존재하지 않으면 생성
+        if (!socketFile.exists()) {
+            log.warn("Socket file {} does not exist. Creating it...", SOCKET_PATH);
+            createSocketFile(socketFile);
+        }
+
         socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(getSocketAddress(SOCKET_PATH)));
         out = socket.getOutputStream();
         in = socket.getInputStream();
+    }
+
+    private void createSocketFile(File socketFile) throws IOException {
+        try {
+            boolean created = socketFile.createNewFile();
+            if (!created) {
+                throw new IOException(
+                    "Failed to create socket file: " + socketFile.getAbsolutePath());
+            }
+            log.info("Socket file created: {}", socketFile.getAbsolutePath());
+
+            socketFile.setReadable(true, true);
+            socketFile.setWritable(true, false);
+            socketFile.setExecutable(true, true);
+
+            log.info("Socket file permissions set: rwx------");
+        } catch (IOException e) {
+            log.error("Error creating socket file", e);
+            throw e;
+        }
     }
 
     @PreDestroy
