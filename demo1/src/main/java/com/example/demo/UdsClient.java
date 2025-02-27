@@ -55,8 +55,18 @@ public class UdsClient {
         return true;
     }
 
+    public void reconnect() throws IOException {
+        if (this.isValid()) {
+            return;
+        }
+
+        socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(getSocketAddress(SOCKET_PATH)));
+        out = socket.getOutputStream();
+        in = socket.getInputStream();
+    }
+
     public String[] sendMessage(String message) throws IOException {
-        connect();
+        reconnect();
 
         out.write(message.getBytes());
         out.flush();
