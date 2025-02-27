@@ -87,7 +87,6 @@ public class UdsClient {
 
         byte[] buffer = new byte[BUFFER_SIZE];
         int numRead = in.read(buffer);
-        in.reset();
 
         if (numRead <= 0) {
             log.warn("No data received from UDS");
