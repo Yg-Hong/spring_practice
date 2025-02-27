@@ -21,7 +21,7 @@ public class UdsClient {
 
     private final String SOCKET_PATH;
     private final int BUFFER_SIZE;
-    private AFUNIXSocket sock;
+    private AFUNIXSocket socket;
     private OutputStream out;
     private InputStream in;
 
@@ -32,48 +32,31 @@ public class UdsClient {
 
     @PostConstruct
     public void connect() throws IOException {
-        SocketAddress endpoint = getSocketAddress(SOCKET_PATH);
-        sock = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(endpoint));
-        out = sock.getOutputStream();
-        in = sock.getInputStream();
-
-        log.info("UDS Connected Completely to {}", endpoint);
+        socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(getSocketAddress(SOCKET_PATH)));
+        out = socket.getOutputStream();
+        in = socket.getInputStream();
     }
 
     @PreDestroy
     public void disconnect() throws IOException {
-        if (sock != null && !sock.isClosed()) {
-            sock.close();
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
             log.info("Disconnected from server on " + SOCKET_PATH);
         }
     }
 
     public boolean isValid() {
-        if (sock == null) {
+        if (socket == null) {
             return false;
-        } else if (!sock.isConnected()) {
+        } else if (!socket.isConnected()) {
             return false;
         }
 
         return true;
     }
 
-    public void reconnect() throws IOException {
-        if (this.isValid()) {
-            return;
-        }
-
-        SocketAddress endpoint = getSocketAddress(SOCKET_PATH);
-        sock = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(endpoint));
-        out = sock.getOutputStream();
-        in = sock.getInputStream();
-    }
-
     public String[] sendMessage(String message) throws IOException {
-        if (sock == null || !sock.isConnected() || sock.isClosed()) {
-            log.info("UDS NOT CONNECTED, reconnecting...");
-            reconnect();
-        }
+        connect();
 
         out.write(message.getBytes());
         out.flush();
