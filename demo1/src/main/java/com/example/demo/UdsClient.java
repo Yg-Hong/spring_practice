@@ -75,6 +75,7 @@ public class UdsClient {
     }
 
     public String[] sendMessage(String message) throws IOException {
+        // TODO
 //        if (!isValid()) {
 //            log.info("UDS NOT CONNECTED, reconnecting...");
 //            connect();
@@ -83,7 +84,7 @@ public class UdsClient {
 
         log.info("Sending message : {}", message);
         clearInputStream();
-        out.write(message.getBytes(StandardCharsets.UTF_8), 0, message.length() - 1);
+        out.write(message.getBytes(StandardCharsets.UTF_8), 0, message.length());
         out.flush();
 
         byte[] buffer = new byte[BUFFER_SIZE];
