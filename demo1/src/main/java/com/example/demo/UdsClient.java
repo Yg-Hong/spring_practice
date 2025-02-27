@@ -81,7 +81,7 @@ public class UdsClient {
         }
 
         log.info("Sending message : {}", message);
-        out.write(message.getBytes(StandardCharsets.UTF_8));
+        out.write(message.getBytes(StandardCharsets.UTF_8), 0, message.length());
         out.flush();
 
         byte[] buffer = new byte[BUFFER_SIZE];
