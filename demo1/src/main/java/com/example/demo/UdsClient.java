@@ -1,8 +1,7 @@
 package com.example.demo;
 
 import jakarta.annotation.PostConstruct;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import jakarta.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,55 +9,53 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.newsclub.net.unix.AFSocketAddress;
 import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class UdsClient {
 
-    @Value("${uds.socket.path:/tmp/.webc_server}")
-    private String SOCKET_PATH;
-    @Value("${uds.buffer.size}")
-    private int BUFFER_SIZE;
-
-    private AFUNIXSocket socket;
+    private final String SOCKET_PATH;
+    private final int BUFFER_SIZE;
+    private AFUNIXSocket sock;
     private OutputStream out;
     private InputStream in;
 
+    public UdsClient() {
+        this.SOCKET_PATH = "/tmp/.webc_server";
+        this.BUFFER_SIZE = 4096;
+    }
+
     @PostConstruct
     public void connect() throws IOException {
-        if (isValid()) {
-            return;
-        }
-        log.info("Connecting to UDS: {}", SOCKET_PATH);
+        SocketAddress endpoint = getSocketAddress(SOCKET_PATH);
+        sock = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(endpoint));
+        out = sock.getOutputStream();
+        in = sock.getInputStream();
 
-        socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(getSocketAddress(SOCKET_PATH)));
-        out = new BufferedOutputStream(socket.getOutputStream());
-        in = new BufferedInputStream(socket.getInputStream());
-
-        log.info("UDS Connected Completely to {}", SOCKET_PATH);
+        log.info("UDS Connected Completely to {}", endpoint);
     }
 
-    public synchronized void disconnect() {
-        if (socket != null && !socket.isClosed()) {
-            try {
-                socket.close();
-                log.info("Disconnected from UDS: {}", SOCKET_PATH);
-            } catch (IOException e) {
-                log.error("Error closing UDS connection", e);
-            }
+    @PreDestroy
+    public void disconnect() throws IOException {
+        if (sock != null && !sock.isClosed()) {
+            sock.close();
+            log.info("Disconnected from server on " + SOCKET_PATH);
         }
     }
 
-    public synchronized boolean isValid() {
-        return socket != null && socket.isConnected() && !socket.isClosed();
+    public boolean isValid() {
+        if (sock == null) {
+            return false;
+        } else if (!sock.isConnected()) {
+            return false;
+        }
+
+        return true;
     }
 
     public void reconnect() throws IOException {
@@ -67,13 +64,13 @@ public class UdsClient {
         }
 
         SocketAddress endpoint = getSocketAddress(SOCKET_PATH);
-        socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(endpoint));
-        out = socket.getOutputStream();
-        in = socket.getInputStream();
+        sock = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(endpoint));
+        out = sock.getOutputStream();
+        in = sock.getInputStream();
     }
 
     public String[] sendMessage(String message) throws IOException {
-        if (socket == null || !socket.isConnected() || socket.isClosed()) {
+        if (sock == null || !sock.isConnected() || sock.isClosed()) {
             log.info("UDS NOT CONNECTED, reconnecting...");
             reconnect();
         }
@@ -127,9 +124,11 @@ public class UdsClient {
         try {
             if (in != null) {
                 in.close();
+                log.info("InputStream closed.");
             }
             if (out != null) {
                 out.close();
+                log.info("OutputStream closed.");
             }
         } catch (IOException e) {
             log.error("Error while closing streams", e);
