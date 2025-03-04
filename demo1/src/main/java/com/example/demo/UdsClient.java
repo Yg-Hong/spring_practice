@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
 import org.newsclub.net.unix.AFSocketAddress;
 import org.newsclub.net.unix.AFUNIXSocket;
@@ -21,6 +22,8 @@ public class UdsClient {
 
     private final String SOCKET_PATH;
     private final int BUFFER_SIZE;
+    private final ReentrantLock lock = new ReentrantLock();
+
     private AFUNIXSocket socket;
     private OutputStream out;
     private InputStream in;
@@ -32,21 +35,40 @@ public class UdsClient {
 
     @PostConstruct
     public void connect() throws IOException {
-        if (isValid()) {
-            return;
+        lock.lock();
+        try {
+            if (isValid()) {
+                return;
+            }
+
+            File socketFile = new File(SOCKET_PATH);
+
+            // 소켓 파일이 존재하지 않으면 생성
+            if (!socketFile.exists()) {
+                log.warn("Socket file {} does not exist. Creating it...", SOCKET_PATH);
+                createSocketFile(socketFile);
+            }
+
+            socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(getSocketAddress(SOCKET_PATH)));
+            out = socket.getOutputStream();
+            in = socket.getInputStream();
+            log.info("Connected to {}", SOCKET_PATH);
+        } finally {
+            lock.unlock();
         }
+    }
 
-        File socketFile = new File(SOCKET_PATH);
-
-        // 소켓 파일이 존재하지 않으면 생성
-        if (!socketFile.exists()) {
-            log.warn("Socket file {} does not exist. Creating it...", SOCKET_PATH);
-            createSocketFile(socketFile);
+    @PreDestroy
+    public void disconnect() throws IOException {
+        lock.lock();
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+                log.info("Disconnected from server on {}", SOCKET_PATH);
+            }
+        } finally {
+            lock.unlock();
         }
-
-        socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(getSocketAddress(SOCKET_PATH)));
-        out = socket.getOutputStream();
-        in = socket.getInputStream();
     }
 
     private void createSocketFile(File socketFile) throws IOException {
@@ -69,50 +91,47 @@ public class UdsClient {
         }
     }
 
-    @PreDestroy
-    public void disconnect() throws IOException {
-        if (socket != null && !socket.isClosed()) {
-            socket.close();
-            log.info("Disconnected from server on " + SOCKET_PATH);
-        }
-    }
-
     public boolean isValid() {
-        if (socket == null) {
-            return false;
-        } else if (!socket.isConnected()) {
-            return false;
-        }
-
-        return true;
+        return socket != null && socket.isConnected() && !socket.isClosed();
     }
 
     public void reconnect() throws IOException {
-        if (this.isValid()) {
-            return;
-        }
+        lock.lock();
+        try {
+            if (this.isValid()) {
+                return;
+            }
 
-        socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(getSocketAddress(SOCKET_PATH)));
-        out = socket.getOutputStream();
-        in = socket.getInputStream();
+            socket = AFUNIXSocket.connectTo(AFUNIXSocketAddress.of(getSocketAddress(SOCKET_PATH)));
+            out = socket.getOutputStream();
+            in = socket.getInputStream();
+            log.info("Reconnected to UDS: {}", SOCKET_PATH);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public String[] sendMessage(String message) throws IOException {
-        reconnect();
+        lock.lock();
+        try {
+            reconnect();
 
-        out.write(message.getBytes());
-        out.flush();
+            out.write(message.getBytes());
+            out.flush();
 
-        byte[] buffer = new byte[BUFFER_SIZE];
-        int numRead = in.read(buffer);
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int numRead = in.read(buffer);
 
-        String result = null;
-        if (numRead > 0) {
-            result = new String(buffer, 0, numRead);
+            String result = null;
+            if (numRead > 0) {
+                result = new String(buffer, 0, numRead);
+            }
+            cleanUp();
+
+            return result == null ? new String[0] : parsePacket(result);
+        } finally {
+            lock.unlock();
         }
-        cleanUp();
-
-        return result == null ? new String[0] : parsePacket(result);
     }
 
     private String[] parsePacket(String result) {
