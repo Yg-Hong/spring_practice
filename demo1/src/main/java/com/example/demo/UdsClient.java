@@ -111,12 +111,12 @@ public class UdsClient {
         }
     }
 
-    public String[] sendMessage(String message) throws IOException {
+    public String[] sendMessage(UdsCmd udsCmd) throws IOException {
         lock.lock();
         try {
             reconnect();
 
-            out.write(message.getBytes());
+            out.write(udsCmd.getCmd().getBytes());
             out.flush();
 
             byte[] buffer = new byte[BUFFER_SIZE];
