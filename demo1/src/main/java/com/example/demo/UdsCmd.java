@@ -12,6 +12,7 @@ public enum UdsCmd {
 
     // Overview Status
     OverviewDaemonStatus("161:0:0"),
+    OverviewHomeInfo("21:0:0"),
     ;
 
     private final String cmd;

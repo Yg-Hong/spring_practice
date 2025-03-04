@@ -3,6 +3,7 @@ package com.example.demo;
 import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +21,15 @@ public class UdsController {
         return udsClientService.sendMessage(UdsCmd.Ping);
     }
 
-    @PostMapping("/showDaemon")
+    @GetMapping("/showDaemon")
     public Map<String, Object> showDaemon() throws IOException {
 //        return udsClientService.sendMessage(UdsCmd.OverviewDaemonStatus);
         return overviewUdsService.getOverviewDaemonStatus();
     }
+
+    @GetMapping("/homeinfo")
+    public Map<String, Object> homeinfo() throws IOException {
+        return overviewUdsService.getOverviewHomeInfo();
+    }
 }
+
