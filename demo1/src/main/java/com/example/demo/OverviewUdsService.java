@@ -14,7 +14,7 @@ public class OverviewUdsService {
 
     private final UdsClient udsClient;
 
-    public Map<String, Object> overviewUdsService(String cmd) throws IOException {
+    public Map<String, Object> getOverviewDaemonStatus() throws IOException {
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", "0");
