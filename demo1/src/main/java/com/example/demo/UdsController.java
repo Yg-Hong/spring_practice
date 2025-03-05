@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -15,6 +16,7 @@ public class UdsController {
 
     private final UdsClient udsClientService;
     private final OverviewUdsService overviewUdsService;
+    private final NetworkUdsService networkUdsService;
 
     @PostMapping("/ping")
     public String[] ping() throws IOException {
@@ -23,13 +25,22 @@ public class UdsController {
 
     @GetMapping("/showDaemon")
     public Map<String, Object> showDaemon() throws IOException {
-//        return udsClientService.sendMessage(UdsCmd.OverviewDaemonStatus);
         return overviewUdsService.getOverviewDaemonStatus();
     }
 
     @GetMapping("/homeinfo")
     public Map<String, Object> homeinfo() throws IOException {
         return overviewUdsService.getOverviewHomeInfo();
+    }
+
+    @GetMapping("/edited-rlist")
+    public Map<String, Object> getEditedRList(@RequestParam int page) throws IOException {
+        return networkUdsService.getEditedRList(page);
+    }
+
+    @GetMapping("/rlist")
+    public Map<String, Object> getTotalRList() throws IOException {
+        return networkUdsService.getTotalRList();
     }
 }
 

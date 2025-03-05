@@ -117,21 +117,53 @@ public class UdsClient {
             reconnect();
 
             out.write(udsCmd.getCmd().getBytes());
-            out.flush();
-
-            byte[] buffer = new byte[BUFFER_SIZE];
-            int numRead = in.read(buffer);
-
-            String result = null;
-            if (numRead > 0) {
-                result = new String(buffer, 0, numRead);
-            }
-            cleanUp();
-
-            return result == null ? new String[0] : parsePacket(result);
+            return sendToWebcDaemon();
         } finally {
             lock.unlock();
         }
+    }
+
+    public String[] sendMessage(UdsCmd udsCmd, String paramA) throws IOException {
+        lock.lock();
+        try {
+            reconnect();
+
+            String command = udsCmd.getCmd() + paramA;
+
+            out.write(command.getBytes());
+            return sendToWebcDaemon();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public String[] sendMessage(UdsCmd udsCmd, String paramA, String paramB) throws IOException {
+        lock.lock();
+        try {
+            reconnect();
+
+            String command = udsCmd.getCmd() + paramA + ":" + paramB;
+
+            out.write(command.getBytes());
+            return sendToWebcDaemon();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private String[] sendToWebcDaemon() throws IOException {
+        out.flush();
+
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int numRead = in.read(buffer);
+
+        String result = null;
+        if (numRead > 0) {
+            result = new String(buffer, 0, numRead);
+        }
+        cleanUp();
+
+        return result == null ? new String[0] : parsePacket(result);
     }
 
     private String[] parsePacket(String result) {
