@@ -3,6 +3,7 @@ package com.example.demo;
 import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,10 +45,20 @@ public class UdsController {
         return networkUdsService.getTotalRList();
     }
 
-    @PostMapping("rlist")
+    @PostMapping("/rrule")
     public Map<String, Object> addRoutingRule(@RequestBody RoutingRuleReqDto routingRuleReqDto)
         throws IOException {
         return networkUdsService.createRoutingRule(
+            routingRuleReqDto.getDestinationIp(),
+            routingRuleReqDto.getSubnetMask(),
+            routingRuleReqDto.getGateway()
+        );
+    }
+
+    @DeleteMapping("/rrule")
+    public Map<String, Object> deleteRoutingRule(@RequestBody RoutingRuleReqDto routingRuleReqDto)
+        throws IOException {
+        return networkUdsService.removeRoutingRule(
             routingRuleReqDto.getDestinationIp(),
             routingRuleReqDto.getSubnetMask(),
             routingRuleReqDto.getGateway()

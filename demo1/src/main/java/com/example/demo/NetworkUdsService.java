@@ -92,8 +92,10 @@ public class NetworkUdsService {
 
         Map<String, String> log = new HashMap<>();
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("ip route ").append(dip).append(" ").append(subnetMask).append(" ")
+        StringBuilder sb = new StringBuilder()
+            .append("ip route ")
+            .append(dip).append(" ")
+            .append(subnetMask).append(" ")
             .append(gateway);
         String[] parsedResult = udsClient.sendMessage(UdsCmd.AddRoutingRule, sb.toString());
 
@@ -104,6 +106,35 @@ public class NetworkUdsService {
             result.put("success", "1");
             log.put("eng", "x Failed to add routing rule");
             log.put("kor", "x 라우팅 규칙 추가에 실패했습니다");
+        }
+
+        result.put("log", log);
+        return result;
+    }
+
+    public Map<String, Object> removeRoutingRule(String dip, String subnetMask, String gateway)
+        throws IOException {
+        //TODO data validation check
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", "0");
+        result.put("log", new HashMap<String, String>());
+        result.put("act", "1");
+
+        Map<String, String> log = new HashMap<>();
+
+        StringBuilder sb = new StringBuilder()
+            .append("no ip route ")
+            .append(dip).append(" ")
+            .append(subnetMask);
+        String[] parsedResult = udsClient.sendMessage(UdsCmd.DeleteRoutingRule, sb.toString());
+
+        if (parsedResult.length > 1 && "0".equals(parsedResult[1])) {
+            log.put("eng", "v Succeeded to delete routing rule");
+            log.put("kor", "v 라우팅 규칙 삭제에 성공했습니다");
+        } else {
+            result.put("success", "1");
+            log.put("eng", "x Failed to delete routing rule");
+            log.put("kor", "x 라우팅 규칙 삭제에 실패했습니다");
         }
 
         result.put("log", log);
