@@ -5,6 +5,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +42,16 @@ public class UdsController {
     @GetMapping("/rlist")
     public Map<String, Object> getTotalRList() throws IOException {
         return networkUdsService.getTotalRList();
+    }
+
+    @PostMapping("rlist")
+    public Map<String, Object> addRoutingRule(@RequestBody RoutingRuleReqDto routingRuleReqDto)
+        throws IOException {
+        return networkUdsService.createRoutingRule(
+            routingRuleReqDto.getDestinationIp(),
+            routingRuleReqDto.getSubnetMask(),
+            routingRuleReqDto.getGateway()
+        );
     }
 }
 

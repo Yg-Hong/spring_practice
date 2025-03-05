@@ -17,6 +17,7 @@ public enum UdsCmd {
     // Routing
     EditedRoutingList("36:0:"),
     TotalRoutingList("37:0:0"),
+    AddRoutingRule("11:0:"),
     ;
 
     private final String cmd;
