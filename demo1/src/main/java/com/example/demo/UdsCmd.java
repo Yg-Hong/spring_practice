@@ -19,6 +19,10 @@ public enum UdsCmd {
     TotalRoutingList("37:0:0"),
     AddRoutingRule("11:0:"),
     DeleteRoutingRule("11:0:"),
+
+    // PUF
+    showPufMaster("171:0:0"),
+    showPufSlave("172:0:0"),
     ;
 
     private final String cmd;

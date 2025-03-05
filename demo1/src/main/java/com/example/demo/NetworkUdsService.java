@@ -112,7 +112,7 @@ public class NetworkUdsService {
         return result;
     }
 
-    public Map<String, Object> removeRoutingRule(String dip, String subnetMask, String gateway)
+    public Map<String, Object> removeRoutingRule(String dip, String subnetMask)
         throws IOException {
         //TODO data validation check
         Map<String, Object> result = new HashMap<>();

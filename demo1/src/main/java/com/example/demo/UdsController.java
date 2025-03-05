@@ -19,6 +19,7 @@ public class UdsController {
     private final UdsClient udsClientService;
     private final OverviewUdsService overviewUdsService;
     private final NetworkUdsService networkUdsService;
+    private final PufUdsService pufUdsService;
 
     @PostMapping("/ping")
     public String[] ping() throws IOException {
@@ -56,13 +57,23 @@ public class UdsController {
     }
 
     @DeleteMapping("/rrule")
-    public Map<String, Object> deleteRoutingRule(@RequestBody RoutingRuleReqDto routingRuleReqDto)
+    public Map<String, Object> deleteRoutingRule(@RequestParam String destinationIp,
+        @RequestParam String subnetMask)
         throws IOException {
         return networkUdsService.removeRoutingRule(
-            routingRuleReqDto.getDestinationIp(),
-            routingRuleReqDto.getSubnetMask(),
-            routingRuleReqDto.getGateway()
+            destinationIp,
+            subnetMask
         );
+    }
+
+    @GetMapping("/master")
+    public Map<String, Object> getMasterPUFStatus() throws IOException {
+        return pufUdsService.getMasterPufStatus();
+    }
+
+    @GetMapping("/slave")
+    public Map<String, Object> getSlavePUFStatus() throws IOException {
+        return pufUdsService.getSlavePufStatus();
     }
 }
 
