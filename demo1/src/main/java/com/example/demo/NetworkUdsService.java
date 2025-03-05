@@ -48,7 +48,6 @@ public class NetworkUdsService {
 
     public Map<String, Object> getTotalRList() throws IOException {
         Map<String, Object> result = new HashMap<>();
-        List<List<String>> routes = new ArrayList<>();
         int count = 0;
 
         String msg = executeCommand("route -n");
@@ -61,21 +60,23 @@ public class NetworkUdsService {
         String[] lines = msg.split("\n");
 
         // 첫 번째 줄(헤더) 제외
-        for (int i = 1; i < lines.length; i++) {
-            String line = lines[i].trim();
-            if (line.isEmpty()) continue;
+        for (String s : lines) {
+            String line = s.trim();
+            if (line.isEmpty()) {
+                continue;
+            }
 
             String[] tokens = line.split("\\s+");
             List<String> row = new ArrayList<>();
             for (String token : tokens) {
                 row.add(token);
             }
-            routes.add(row);
+            result.put(String.valueOf(count), row);
+
             count++;
         }
 
-        result.put("success", "1");
-        result.put("routes", routes);
+        result.put("success", "0");
         result.put("rcount", count);
 
         return result;
