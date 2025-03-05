@@ -3,6 +3,7 @@ package com.example.demo;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -74,7 +75,7 @@ public class OverviewUdsService {
             result.put("gate", parsedResult[11]);
             result.put("version", parsedResult[12]);
 
-            String date = executeCommand("date");
+            String date = executeCommand("date").toString();
             result.put("date", (date.isEmpty()) ? "-" : date);
 
         } catch (Exception e) {
@@ -85,14 +86,14 @@ public class OverviewUdsService {
         return result;
     }
 
-    private String executeCommand(String command) {
+    private Stream<String> executeCommand(String command) {
         try {
             Process process = Runtime.getRuntime().exec(command);
             java.io.BufferedReader reader = new java.io.BufferedReader(
                 new java.io.InputStreamReader(process.getInputStream()));
-            return reader.readLine();
+            return reader.lines();
         } catch (IOException e) {
-            return "";
+            return "".lines();
         }
     }
 }

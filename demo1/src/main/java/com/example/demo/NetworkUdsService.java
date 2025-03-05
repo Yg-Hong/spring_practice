@@ -1,7 +1,11 @@
 package com.example.demo;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,26 +48,55 @@ public class NetworkUdsService {
 
     public Map<String, Object> getTotalRList() throws IOException {
         Map<String, Object> result = new HashMap<>();
-        result.put("success", "0");
-        result.put("log", "");
-
-        String[] parsedResult = udsClient.sendMessage(UdsCmd.TotalRoutingList);
+        List<List<String>> routes = new ArrayList<>();
+        int count = 0;
 
         String msg = executeCommand("route -n");
-        log.info(msg);
+        if (msg.isEmpty()) {
+            result.put("success", "0");
+            result.put("log", "Failed to fetch routing table");
+            return result;
+        }
 
-        return null;
+        String[] lines = msg.split("\n");
+
+        // 첫 번째 줄(헤더) 제외
+        for (int i = 1; i < lines.length; i++) {
+            String line = lines[i].trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+            List<String> row = new ArrayList<>();
+            for (String token : tokens) {
+                row.add(token);
+            }
+            routes.add(row);
+            count++;
+        }
+
+        result.put("success", "1");
+        result.put("routes", routes);
+        result.put("rcount", count);
+
+        return result;
     }
 
     private String executeCommand(String command) {
+        StringBuilder output = new StringBuilder();
         try {
             Process process = Runtime.getRuntime().exec(command);
-            java.io.BufferedReader reader = new java.io.BufferedReader(
-                new java.io.InputStreamReader(process.getInputStream()));
-            return reader.readLine();
-        } catch (IOException e) {
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
             return "";
         }
+        return output.toString();
     }
 
 }
