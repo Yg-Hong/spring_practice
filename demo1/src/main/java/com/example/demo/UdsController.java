@@ -75,5 +75,10 @@ public class UdsController {
     public Map<String, Object> getSlavePUFStatus() throws IOException {
         return pufUdsService.getSlavePufStatus();
     }
+
+    @GetMapping("/pci")
+    public Map<String, String> getPciPUFStatus() throws IOException {
+        return pufUdsService.getPciInfo();
+    }
 }
 
