@@ -23,6 +23,9 @@ public enum UdsCmd {
     // PUF
     showPufMaster("171:0:0"),
     showPufSlave("172:0:0"),
+
+    // VPN
+
     ;
 
     private final String cmd;

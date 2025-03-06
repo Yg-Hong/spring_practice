@@ -20,6 +20,7 @@ public class UdsController {
     private final OverviewUdsService overviewUdsService;
     private final NetworkUdsService networkUdsService;
     private final PufUdsService pufUdsService;
+    private final VpnUdsService vpnUdsService;
 
     @PostMapping("/ping")
     public String[] ping() throws IOException {
@@ -79,6 +80,12 @@ public class UdsController {
     @GetMapping("/pci")
     public Map<String, String> getPciPUFStatus() throws IOException {
         return pufUdsService.getPciInfo();
+    }
+
+    @GetMapping("/clients")
+    public Map<String, Object> getClientsByPage(@RequestParam int page, @RequestParam int rowNum)
+        throws IOException {
+        return vpnUdsService.getClientsByPage(page, rowNum);
     }
 }
 
