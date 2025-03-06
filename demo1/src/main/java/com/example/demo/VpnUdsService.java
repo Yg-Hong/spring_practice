@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,13 +13,20 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class VpnUdsService {
 
-    UdsClient udsClient;
     private final RedisTemplate<String, String> redisTemplate6379;
     private final RedisTemplate<String, String> redisTemplate6380;
+
+    public VpnUdsService(
+        @Qualifier("redisTemplate6379") RedisTemplate<String, String> redisTemplate6379,
+        @Qualifier("redisTemplate6380") RedisTemplate<String, String> redisTemplate6380
+    ) {
+        this.redisTemplate6379 = redisTemplate6379;
+        this.redisTemplate6380 = redisTemplate6380;
+    }
+
 
     public Map<String, Object> getClientsByPage(int page, int rowNum) {
         Map<String, Object> result = new HashMap<>();
@@ -28,9 +35,9 @@ public class VpnUdsService {
         int cctvs = 0;
         int offset = (page - 1) * rowNum;
 
-        ListOperations<String, String> listOps = redisTemplate6379.opsForList();
+        ListOperations<String, Object> listOps = redisTemplate6379.opsForList();
         HashOperations<String, String, String> hashOps = redisTemplate6379.opsForHash();
-        ValueOperations<String, String> valueOps6380 = redisTemplate6380.opsForValue();
+        ValueOperations<String, Object> valueOps6380 = redisTemplate6380.opsForValue();
 
         Long total = listOps.size("client_list");
         if (total == null) {
