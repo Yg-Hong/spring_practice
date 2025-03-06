@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -131,11 +132,18 @@ public class VpnUdsService {
             result.put("last", String.valueOf(total));
             result.put("total", String.valueOf(total));
 
-            Set<String> tidSet = zSetOps.range("tclient", 0, 0);
-            String tid = tidSet != null && !tidSet.isEmpty() ? tidSet.iterator().next() : "1";
-            result.put("tid", tid);
+            Set<TypedTuple<String>> tidSet = zSetOps.rangeWithScores("tclient", 0, 0);
+            String tid = "1";
+            Double score = 0.0;
+            if (tidSet != null && !tidSet.isEmpty()) {
+                for (TypedTuple<String> entry : tidSet) {
+                    tid = entry.getValue(); // TID 값
+                    score = entry.getScore(); // 점수 (필요 시 활용 가능)
+                }
+            }
+            result.put("tid", score);
 
-            List<String> tunnelList = listOps.range("tid:" + tid, 0, -1);
+            List<String> tunnelList = listOps.range("tid:" + score, 0, -1);
             if (tunnelList == null || tunnelList.isEmpty()) {
                 result.put("success", "1");
                 result.put("log", "x Tunnel list is empty.");

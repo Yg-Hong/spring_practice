@@ -26,6 +26,10 @@ public enum UdsCmd {
 
     // VPN
 
+    // Firewall
+    ShowL3FilteringRule("51:0:"),
+    CreateL3FilteringRule("11:0:zirewall filter "),
+    DeleteL3FilteringRule("11:0:no zirewall filter "),
     ;
 
     private final String cmd;
