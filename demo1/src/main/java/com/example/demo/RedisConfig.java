@@ -19,7 +19,7 @@ public class RedisConfig {
 //    private int port;
 
     @Bean
-    @Qualifier(2)
+    @Qualifier("2")
     public RedisConnectionFactory RedisConnectionFactory6379() {
         return new LettuceConnectionFactory("127.0.0.1", 6379);
     }
