@@ -11,20 +11,20 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-    @Value("${spring.data.redis.host}")
-    private String host;
-
-    @Value("${spring.data.redis.port}")
-    private int port;
+//    @Value("${spring.data.redis.host}")
+//    private String host;
+//
+//    @Value("${spring.data.redis.port}")
+//    private int port;
 
     @Bean
     public RedisConnectionFactory RedisConnectionFactory6379() {
-        return new LettuceConnectionFactory(host, 6379);
+        return new LettuceConnectionFactory("127.0.0.1", 6379);
     }
 
     @Bean
     public RedisConnectionFactory RedisConnectionFactory6380() {
-        return new LettuceConnectionFactory(host, 6380);
+        return new LettuceConnectionFactory("127.0.0.1", 6380);
     }
 
 
