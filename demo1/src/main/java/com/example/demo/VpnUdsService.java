@@ -35,9 +35,9 @@ public class VpnUdsService {
         int cctvs = 0;
         int offset = (page - 1) * rowNum;
 
-        ListOperations<String, Object> listOps = redisTemplate6379.opsForList();
+        ListOperations<String, String> listOps = redisTemplate6379.opsForList();
         HashOperations<String, String, String> hashOps = redisTemplate6379.opsForHash();
-        ValueOperations<String, Object> valueOps6380 = redisTemplate6380.opsForValue();
+        ValueOperations<String, String> valueOps6380 = redisTemplate6380.opsForValue();
 
         Long total = listOps.size("client_list");
         if (total == null) {
