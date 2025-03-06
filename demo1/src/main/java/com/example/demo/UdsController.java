@@ -83,7 +83,7 @@ public class UdsController {
     }
 
     @GetMapping("/clients")
-    public Map<String, Object> getClientsByPage(@RequestParam int page, @RequestParam int rowNum)
+    public Map<String, Object> showClientsByPage(@RequestParam int page, @RequestParam int rowNum)
         throws IOException {
         return vpnUdsService.getClientsByPage(page, rowNum);
     }

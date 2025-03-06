@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,6 @@ public class VpnUdsService {
         result.put("total", String.valueOf(total));
 
         List<String> resArray = listOps.range("client_list", offset, offset + rowNum - 1);
-        List<Map<String, String>> cctvList = new ArrayList<>();
 
         if (resArray != null) {
             for (String value : resArray) {
@@ -92,13 +90,12 @@ public class VpnUdsService {
                     cctvData.put("status", "0");
                 }
 
-                cctvList.add(cctvData);
+                result.put(String.valueOf(cctvs), cctvData);
                 cctvs++;
             }
         }
 
         result.put("cctvs", String.valueOf(cctvs));
-        result.put("cctvList", cctvList);
 
         if (cctvs < 1) {
             result.put("success", "1");
