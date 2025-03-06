@@ -87,5 +87,10 @@ public class UdsController {
         throws IOException {
         return vpnUdsService.getClientsByPage(page, rowNum);
     }
+
+    @GetMapping("/tunnels")
+    public Map<String, Object> showTunnels() throws IOException {
+        return vpnUdsService.getTunnels();
+    }
 }
 
