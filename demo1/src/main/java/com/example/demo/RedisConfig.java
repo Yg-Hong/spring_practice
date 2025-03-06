@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -19,11 +19,13 @@ public class RedisConfig {
 //    private int port;
 
     @Bean
+    @Qualifier(2)
     public RedisConnectionFactory RedisConnectionFactory6379() {
         return new LettuceConnectionFactory("127.0.0.1", 6379);
     }
 
     @Bean
+    @Primary
     public RedisConnectionFactory RedisConnectionFactory6380() {
         return new LettuceConnectionFactory("127.0.0.1", 6380);
     }
@@ -49,7 +51,6 @@ public class RedisConfig {
     }
 
     @Bean
-    @Primary
     public RedisTemplate<String, String> redisTemplate6380() {
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(RedisConnectionFactory6380());
