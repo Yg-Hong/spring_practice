@@ -74,8 +74,9 @@ public class FirewallService {
 
         log.info("{}{} {} {} {} {} {} {} {} ",
             set.equals("1") ? UdsCmd.CreateL3FilteringRule.getCmd() :
-                UdsCmd.DeleteL3FilteringRule.getCmd(), dir, iface, policy, proto, sip, sport, dip,
-            dport);
+                UdsCmd.DeleteL3FilteringRule.getCmd(), dir, iface, policy, proto, sip,
+            "".equals(sport) ? "0" : sport, dip,
+            "".equals(dport) ? "0" : dport);
 
         String[] parsedResult = udsClient.sendMessage(
             set.equals("1") ? UdsCmd.CreateL3FilteringRule : UdsCmd.DeleteL3FilteringRule,
