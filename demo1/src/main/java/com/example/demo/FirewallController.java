@@ -3,6 +3,7 @@ package com.example.demo;
 import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/firewall")
+@Slf4j
 public class FirewallController {
 
     private final FirewallService firewallUdsService;
@@ -25,6 +27,7 @@ public class FirewallController {
     @PostMapping("/l3")
     public Map<String, Object> setL3FilteringRule(
         @RequestBody L3FilteringRuleReqDto l3FilteringRuleReqDto) throws IOException {
+        log.info(l3FilteringRuleReqDto.toString());
         return firewallUdsService.setL3FilteringRule(
             l3FilteringRuleReqDto.getSet(),
             l3FilteringRuleReqDto.getDir(),
