@@ -68,9 +68,22 @@ public class FirewallService {
         result.put("success", "0");
         result.put("act", "1");
 
-        Map<String, String> log = new HashMap<>();
+        Map<String, String> logMap = new HashMap<>();
 
         //TODO need to add validation check
+
+        log.info(set.equals("1") ? UdsCmd.CreateL3FilteringRule.getCmd() : UdsCmd.DeleteL3FilteringRule.getCmd() +
+            new StringBuilder()
+                .append(dir).append(" ")
+                .append(iface).append(" ")
+                .append(policy).append(" ")
+                .append(proto).append(" ")
+                .append(sip).append(" ")
+                .append(sport).append(" ")
+                .append(dip).append(" ")
+                .append(dport).append(" ")
+                .toString()
+        );
 
         String[] parsedResult = udsClient.sendMessage(
             set.equals("1") ? UdsCmd.CreateL3FilteringRule : UdsCmd.DeleteL3FilteringRule,
@@ -89,34 +102,34 @@ public class FirewallService {
         try {
             if (parsedResult.length > 1 && "0".equals(parsedResult[1])) {
                 if (set.equals("1")) {
-                    log.put("eng", "v Succeeded to add filter rule");
-                    log.put("kor", "v 필터 규칙 추가에 성공했습니다");
+                    logMap.put("eng", "v Succeeded to add filter rule");
+                    logMap.put("kor", "v 필터 규칙 추가에 성공했습니다");
                 } else {
-                    log.put("eng", "v Succeeded to delete filter rule");
-                    log.put("kor", "v 필터 규칙 삭제에 성공했습니다");
+                    logMap.put("eng", "v Succeeded to delete filter rule");
+                    logMap.put("kor", "v 필터 규칙 삭제에 성공했습니다");
                 }
             } else {
                 result.put("success", "1");
                 if (set.equals("1")) {
-                    log.put("eng", "x Failed to add filter rule");
-                    log.put("kor", "x 필터 규칙 추가에 실패했습니다");
+                    logMap.put("eng", "x Failed to add filter rule");
+                    logMap.put("kor", "x 필터 규칙 추가에 실패했습니다");
                 } else {
-                    log.put("eng", "x Failed to delete filter rule");
-                    log.put("kor", "x 필터 규칙 삭제에 실패했습니다");
+                    logMap.put("eng", "x Failed to delete filter rule");
+                    logMap.put("kor", "x 필터 규칙 삭제에 실패했습니다");
                 }
             }
         } catch (Exception e) {
             result.put("success", "1");
             if (set.equals("1")) {
-                log.put("eng", "x Failed to add filter rule");
-                log.put("kor", "x 필터 규칙 추가에 실패했습니다");
+                logMap.put("eng", "x Failed to add filter rule");
+                logMap.put("kor", "x 필터 규칙 추가에 실패했습니다");
             } else {
-                log.put("eng", "x Failed to delete filter rule");
-                log.put("kor", "x 필터 규칙 삭제에 실패했습니다");
+                logMap.put("eng", "x Failed to delete filter rule");
+                logMap.put("kor", "x 필터 규칙 삭제에 실패했습니다");
             }
         }
 
-        result.put("log", log);
+        result.put("log", logMap);
         return result;
     }
 }
