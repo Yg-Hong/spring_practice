@@ -28,8 +28,8 @@ public enum UdsCmd {
 
     // Firewall
     ShowL3FilteringRule("51:0:"),
-    CreateL3FilteringRule("11:0:zirewall filter "),
-    DeleteL3FilteringRule("11:0:no zirewall filter "),
+    CreateL3FilteringRule("11:0:zfirewall filter "),
+    DeleteL3FilteringRule("11:0:no zfirewall filter "),
     ;
 
     private final String cmd;

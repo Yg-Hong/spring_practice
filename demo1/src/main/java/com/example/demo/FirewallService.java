@@ -72,17 +72,16 @@ public class FirewallService {
 
         //TODO need to add validation check
 
-        log.info(set.equals("1") ? UdsCmd.CreateL3FilteringRule.getCmd() : UdsCmd.DeleteL3FilteringRule.getCmd() +
-            new StringBuilder()
-                .append(dir).append(" ")
-                .append(iface).append(" ")
-                .append(policy).append(" ")
-                .append(proto).append(" ")
-                .append(sip).append(" ")
-                .append(sport).append(" ")
-                .append(dip).append(" ")
-                .append(dport).append(" ")
-                .toString()
+        log.info(set.equals("1") ? UdsCmd.CreateL3FilteringRule.getCmd() :
+            UdsCmd.DeleteL3FilteringRule.getCmd() +
+                dir + " "
+                + iface + " "
+                + policy + " "
+                + proto + " "
+                + sip + " "
+                + sport + " "
+                + dip + " "
+                + dport + " "
         );
 
         String[] parsedResult = udsClient.sendMessage(
