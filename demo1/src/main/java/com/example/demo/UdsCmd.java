@@ -30,6 +30,11 @@ public enum UdsCmd {
     ShowL3FilteringRule("51:0:"),
     CreateL3FilteringRule("11:0:zfirewall filter "),
     DeleteL3FilteringRule("11:0:no zfirewall filter "),
+
+    // Port Mapping
+    ShowPortMappingRule("52:0:"),
+    CreatePortMappingRule("11:0:zfirewall nat portmap "),
+    DeletePortMappingRule("11:0:no zfirewall nat portmap "),
     ;
 
     private final String cmd;

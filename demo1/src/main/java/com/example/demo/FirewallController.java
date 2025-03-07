@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FirewallController {
 
     private final FirewallService firewallUdsService;
+    private final PortMappingService portMappingService;
 
     @GetMapping("/l3")
     public Map<String, Object> showL3FilteringRule(@RequestParam int page) throws IOException {
@@ -38,6 +39,24 @@ public class FirewallController {
             l3FilteringRuleReqDto.getSport(),
             l3FilteringRuleReqDto.getDip(),
             l3FilteringRuleReqDto.getDport()
+        );
+    }
+
+    @GetMapping("/port-mapping")
+    public Map<String, Object> showPortMappingRule(@RequestParam int page) throws IOException {
+        return portMappingService.getPortMappingRule(page);
+    }
+
+    @PostMapping("/port-mapping")
+    public Map<String, Object> setPortMappingRule(
+        @RequestBody PortMappingRuleReqDto portMappingRuleReqDto) throws IOException {
+        return portMappingService.setPortMappingRule(
+            portMappingRuleReqDto.getSet(),
+            portMappingRuleReqDto.getIp(),
+            portMappingRuleReqDto.getIport(),
+            portMappingRuleReqDto.getEport(),
+            portMappingRuleReqDto.getInf(),
+            portMappingRuleReqDto.getProto()
         );
     }
 }

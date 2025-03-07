@@ -71,25 +71,19 @@ public class FirewallService {
         Map<String, String> logMap = new HashMap<>();
 
         //TODO need to add validation check
-
-        log.info("{}{} {} {} {} {} {} {} {} ",
-            set.equals("1") ? UdsCmd.CreateL3FilteringRule.getCmd() :
-                UdsCmd.DeleteL3FilteringRule.getCmd(), dir, iface, policy, proto, sip,
-            "".equals(sport) ? "0" : sport, dip,
-            "".equals(dport) ? "0" : dport);
+        sport = sport.isEmpty() ? "0" : sport;
+        dport = dport.isEmpty() ? "0" : dport;
 
         String[] parsedResult = udsClient.sendMessage(
             set.equals("1") ? UdsCmd.CreateL3FilteringRule : UdsCmd.DeleteL3FilteringRule,
-            new StringBuilder()
-                .append(dir).append(" ")
-                .append(iface).append(" ")
-                .append(policy).append(" ")
-                .append(proto).append(" ")
-                .append(sip).append(" ")
-                .append(sport).append(" ")
-                .append(dip).append(" ")
-                .append(dport).append(" ")
-                .toString()
+            dir + " "
+                + iface + " "
+                + policy + " "
+                + proto + " "
+                + sip + " "
+                + sport + " "
+                + dip + " "
+                + dport
         );
 
         try {

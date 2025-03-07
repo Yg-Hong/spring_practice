@@ -9,9 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RoutingRuleReqDto {
+public class PortMappingRuleReqDto {
 
-    String destinationIp;
-    String gateway;
-    String subnetMask;
+    String set;
+
+    String inf;
+    String ip;
+    String proto;
+    String eport;
+    String iport;
 }
